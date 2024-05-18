@@ -9,7 +9,10 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var animationAmount = 0.0
-    @State private var enabled = true
+    @State private var enabled = false
+    @State private var dragged=CGSize.zero
+    let letters=Array("Hello Atul")
+    
     var body: some View {
         print(animationAmount)
         return VStack{
@@ -50,7 +53,43 @@ struct ContentView: View {
             .animation(.default, value: enabled)
             .rotation3DEffect(.degrees(animationAmount), axis: (x: 0, y: 0, z: 1))
             .animation(.default, value: enabled)
+            
+            VStack{
+                LinearGradient(colors: [.yellow,.red], startPoint: .topLeading, endPoint: .bottomTrailing)
+                    .frame(width: 300,height: 200)
+                    .clipShape(.rect(cornerRadius: 20))
+                    .offset(dragged)
+                    .gesture(
+                        DragGesture()
+                            .onChanged { dragged = $0.translation }
+                            .onEnded { _ in
+                                //Explicit Animation
+                                withAnimation(.default){
+                                    dragged = .zero }
+                            }
+                    )
+                    
+            }
+            HStack(spacing: 0) {
+                       ForEach(0..<letters.count, id: \.self) { num in
+                           Text(String(letters[num]))
+                               .padding(5)
+                               .font(.title)
+                               .background(enabled ? .blue : .red)
+                               .offset(dragged)
+                               .animation(.linear.delay(Double(num) / 20), value: dragged)
+                       }
+                       .gesture(
+                        DragGesture()
+                            .onChanged { dragged = $0.translation }
+                            .onEnded { _ in
+                                dragged = .zero
+                                enabled.toggle()
+                            }
+                    )
+                   }
         }
+        
         
     }
 }
