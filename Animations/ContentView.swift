@@ -43,7 +43,9 @@ struct ContentView: View {
             Button("Tap Me") {
                 withAnimation {
                     animationAmount += 60
-                    enabled.toggle()
+                    withAnimation{
+                        enabled.toggle()
+                    }
                 }
             }
             .padding(50)
@@ -54,21 +56,24 @@ struct ContentView: View {
             .rotation3DEffect(.degrees(animationAmount), axis: (x: 0, y: 0, z: 1))
             .animation(.default, value: enabled)
             
-            VStack{
-                LinearGradient(colors: [.yellow,.red], startPoint: .topLeading, endPoint: .bottomTrailing)
-                    .frame(width: 300,height: 200)
-                    .clipShape(.rect(cornerRadius: 20))
-                    .offset(dragged)
-                    .gesture(
-                        DragGesture()
-                            .onChanged { dragged = $0.translation }
-                            .onEnded { _ in
-                                //Explicit Animation
-                                withAnimation(.default){
-                                    dragged = .zero }
-                            }
-                    )
-                    
+            if enabled{
+                
+                VStack{
+                    LinearGradient(colors: [.yellow,.red], startPoint: .topLeading, endPoint: .bottomTrailing)
+                        .frame(width: 300,height: 200)
+                        .clipShape(.rect(cornerRadius: 20))
+                        .offset(dragged)
+                        .gesture(
+                            DragGesture()
+                                .onChanged { dragged = $0.translation }
+                                .onEnded { _ in
+                                    //Explicit Animation
+                                    withAnimation(.default){
+                                        dragged = .zero }
+                                }
+                        )
+                        
+                }.transition(.asymmetric(insertion: .scale, removal: .opacity))
             }
             HStack(spacing: 0) {
                        ForEach(0..<letters.count, id: \.self) { num in
